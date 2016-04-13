@@ -1,43 +1,42 @@
-/* LISTAR FICHEIROS REGULARES DE UM DIRECTÓRIO */
+/* LISTAR FICHEIROS REGULARES E SUB-DIRECTÓRIOS DE UM DIRECTÓRIO */
 /* USO: listdir dirname */
 
 #include <stdio.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <dirent.h>
-#include <errno.h>
+#include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <errno.h>
 
-int main(int argc, char *argv[]){
-  DIR *dir;
-  int line;
-  struct dirent *dentry;
-  struct stat stat_entry;
+int main(int argc, char *argv[])
+{
+	DIR *dirp;
+	struct dirent *direntp;
+	struct stat stat_buf;
+	char *str;
+	char name[200];
+	if (argc != 2){
+		fprintf( stderr, "Usage: %s dir_name\n", argv[0]);
+		exit(1);
+	}
+	if ((dirp = opendir( argv[1])) == NULL){
+		perror(argv[1]);
+		exit(2);
+	}
 
-  if (argc != 2) {
-    printf("Usage: %s <dir_path>\n", argv[0]);
-    return 1;
-  }
-  if ((dir = opendir(argv[1])) == NULL) {
-    perror(argv[1]);
-    return 2;
-  }
-
-  chdir(argv[1]);
-  printf("Ficheiros regulares do directorio '%s'\n", argv[1]);
-  line = 1;
-
-  while ((dentry = readdir(dir)) != NULL) {
-    stat(dentry->d_name, &stat_entry);
-    if (S_ISREG(stat_entry.st_mode)) {
-        printf("%-25s%12d%3d\n", dentry->d_name, (int)stat_entry.st_size,(int)stat_entry.st_nlink);
-        if (line++ % 20 == 0) {
-          printf("Press <enter> to continue");
-          getchar();
-        }
-    }
-  }
-
-  return 0;
+	while ((direntp = readdir( dirp)) != NULL){
+		if(direntp->d_name[0] != '.'){ //nao lista ficheiros ocultos
+			sprintf(name,"%s/%s",argv[1],direntp->d_name);
+			if (lstat(name, &stat_buf)==-1)	{
+				perror("lstat ERROR");
+				exit(3);
+			}
+			if (S_ISREG(stat_buf.st_mode)) str = "regular";
+			else if (S_ISDIR(stat_buf.st_mode)) str = "directory";
+			else str = "other";
+			printf("%-25s - %s\n", direntp->d_name, str);
+		}
+	}
+	closedir(dirp);
+	exit(0);
 }
