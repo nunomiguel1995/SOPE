@@ -7,7 +7,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <errno.h>
-
+ //oi
 int read_directory(char *dir_name){
 
 	DIR *dirp;
