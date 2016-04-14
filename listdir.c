@@ -17,7 +17,6 @@ int read_directory(char *dir_name, FILE *file){
 	DIR *dirp;
 	struct dirent *direntp;
 	struct stat stat_buf;
-	char *str;
 	char name[200];
 	char *path = strcat(dir_name,"/");
 	pid_t pid;
@@ -33,13 +32,11 @@ int read_directory(char *dir_name, FILE *file){
 				return 2;
 			}
 			if (S_ISREG(stat_buf.st_mode)){
-				str = "regular";
 				char f_name[50];
 				strcpy(f_name,direntp->d_name);
 				fprintf(file,"%s\n",f_name);
 			}
 			else if (S_ISDIR(stat_buf.st_mode)){
-				str = "directory";
 				pid = fork();
 				if(pid == 0){ /*filho*/
 					read_directory(strcat(path,direntp->d_name),file);
@@ -48,8 +45,6 @@ int read_directory(char *dir_name, FILE *file){
 					waitpid(pid,NULL,0);
 				}
 			}
-			else str = "other";
-			printf("%-25s - %s\n", direntp->d_name, str);
 		}
 	}
 
