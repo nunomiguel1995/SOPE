@@ -11,6 +11,7 @@
 #include <wait.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <time.h>
 #include "utilities.h"
 
 int read_directory(char *dir_name, int file){
@@ -21,6 +22,7 @@ int read_directory(char *dir_name, int file){
 	char f_name[50];
 	int pid;
 	int p_mask;
+	char *mod_time;
 
 	if ((dirp = opendir( dir_name)) == NULL){
 		return 1;
@@ -33,8 +35,10 @@ int read_directory(char *dir_name, int file){
 				return 2;
 			}
 			if (S_ISREG(stat_buf.st_mode)){
-				p_mask = S_IRWXU | S_IRWXG | S_IRWXO;
-				sprintf(f_name,"%s %d\n",direntp->d_name,p_mask);
+				p_mask = (S_IRWXU | S_IRWXG | S_IRWXO); //máscara de permissões
+				mod_time = strtok(ctime(&stat_buf.st_mtim.tv_sec),"\n"); //data da última modificação
+
+				sprintf(f_name,"%s [%s] %d\n",direntp->d_name, mod_time ,p_mask); //formata a linha a guardar no ficheiro
 				write(file,f_name,strlen(f_name));
 			}else if (S_ISDIR(stat_buf.st_mode)){
 				pid = fork();
