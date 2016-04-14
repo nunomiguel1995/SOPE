@@ -35,19 +35,18 @@ int read_directory(char *dir_name, FILE *file){
 				char f_name[50];
 				strcpy(f_name,direntp->d_name);
 				fprintf(file,"%s\n",f_name);
-			}
-			else if (S_ISDIR(stat_buf.st_mode)){
+			}else if (S_ISDIR(stat_buf.st_mode)){
 				pid = fork();
-				if(pid == 0){ /*filho*/
-					read_directory(strcat(path,direntp->d_name),file);
-					return 0;
-				}else{ /*pai*/
+				if(pid > 0){ /*pai*/
 					waitpid(pid,NULL,0);
+				}else{ /*filho*/
+					strcat(path,direntp->d_name);
+					read_directory(path,file);
+					return 0;
 				}
 			}
 		}
 	}
-
 	closedir(dirp);
 	return 0;
 }
