@@ -13,46 +13,46 @@
 #include <fcntl.h>
 #include "utilities.h"
 
-int read_directory(char *dir_name, FILE *file){
+int read_directory(char *dir_name, int file){
 	DIR *dirp;
 	struct dirent *direntp;
 	struct stat stat_buf;
 	char name[200];
-	char *path = strcat(dir_name,"/");
-	pid_t pid;
+	char f_name[50];
+	int pid;
 
 	if ((dirp = opendir( dir_name)) == NULL){
 		return 1;
 	}
 
 	while ((direntp = readdir( dirp)) != NULL){
-		if(direntp->d_name[0] != '.'){ /*nao lista ficheiros ocultos*/
+		if((strcmp(direntp->d_name,".") != 0) && (strcmp(direntp->d_name,"..") != 0)){ /*nao lista ficheiros ocultos*/
 			sprintf(name,"%s/%s",dir_name,direntp->d_name);
 			if (lstat(name, &stat_buf)==-1)	{
 				return 2;
 			}
 			if (S_ISREG(stat_buf.st_mode)){
-				char f_name[50];
 				strcpy(f_name,direntp->d_name);
-				fprintf(file,"%s\n",f_name);
+				strcat(f_name,"\n");
+				write(file,f_name,strlen(f_name));
 			}else if (S_ISDIR(stat_buf.st_mode)){
 				pid = fork();
 				if(pid > 0){ /*pai*/
 					waitpid(pid,NULL,0);
 				}else{ /*filho*/
-					strcat(path,direntp->d_name);
-					read_directory(path,file);
+					read_directory(name,file);
 					return 0;
 				}
 			}
 		}
 	}
+
 	closedir(dirp);
 	return 0;
 }
 
 int main(int argc, char *argv[]){
-	FILE *file;
+	int file;
 	int read_dir;
 
 	if (argc != 2){
@@ -60,8 +60,10 @@ int main(int argc, char *argv[]){
 		exit(1);
 	}
 
-	file = fopen(FILE_NAME,"w");
-	if(file == NULL){
+	open(FILE_NAME, O_TRUNC);
+	file = open(FILE_NAME,O_WRONLY | O_APPEND | O_CREAT, S_IRWXG | S_IRWXU | S_IROTH);
+
+	if(file == -1){
 		perror("file ERROR");
 		exit(1);
 	}
@@ -76,6 +78,7 @@ int main(int argc, char *argv[]){
 		exit(3);
 	}
 
-	fclose(file);
+	close(file);
+
 	exit(0);
 }
