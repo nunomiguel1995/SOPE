@@ -6,15 +6,19 @@
 #include <string.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <wait.h>
 #include <errno.h>
- //oi
-int read_directory(char *dir_name){
 
+int read_directory(char *dir_name){
 	DIR *dirp;
 	struct dirent *direntp;
 	struct stat stat_buf;
 	char *str;
 	char name[200];
+	pid_t pid;
+	char *path = strcat(dir_name,"/");
 
 	if ((dirp = opendir( dir_name)) == NULL){
 		return 1;
@@ -27,7 +31,15 @@ int read_directory(char *dir_name){
 				return 2;
 			}
 			if (S_ISREG(stat_buf.st_mode)) str = "regular";
-			else if (S_ISDIR(stat_buf.st_mode)) str = "directory";
+			else if (S_ISDIR(stat_buf.st_mode)){
+				str = "directory";
+				pid = fork();
+				if(pid == 0){ /*filho*/
+					read_directory(strcat(path,direntp->d_name));
+				}else{ /*pai*/
+					waitpid(pid,NULL,0);
+				}
+			}
 			else str = "other";
 			printf("%-25s - %s\n", direntp->d_name, str);
 		}
