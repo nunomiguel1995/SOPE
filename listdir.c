@@ -20,6 +20,7 @@ int read_directory(char *dir_name, int file){
 	char name[200];
 	char f_name[50];
 	int pid;
+	int p_mask;
 
 	if ((dirp = opendir( dir_name)) == NULL){
 		return 1;
@@ -32,8 +33,8 @@ int read_directory(char *dir_name, int file){
 				return 2;
 			}
 			if (S_ISREG(stat_buf.st_mode)){
-				strcpy(f_name,direntp->d_name);
-				strcat(f_name,"\n");
+				p_mask = S_IRWXU | S_IRWXG | S_IRWXO;
+				sprintf(f_name,"%s %d\n",direntp->d_name,p_mask);
 				write(file,f_name,strlen(f_name));
 			}else if (S_ISDIR(stat_buf.st_mode)){
 				pid = fork();
