@@ -35,10 +35,10 @@ int read_directory(char *dir_name, int file){
 				return 2;
 			}
 			if (S_ISREG(stat_buf.st_mode)){
-				p_mask = (S_IRWXU | S_IRWXG | S_IRWXO); //máscara de permissões
+				p_mask = (stat_buf.st_mode & 0777); //máscara de permissões
 				mod_time = strtok(ctime(&stat_buf.st_mtim.tv_sec),"\n"); //data da última modificação
 
-				sprintf(f_name,"%s [%s] %d\n",direntp->d_name, mod_time ,p_mask); //formata a linha a guardar no ficheiro
+				sprintf(f_name,"%s [%s] %3o [%s]\n",direntp->d_name, mod_time ,p_mask, name); //formata a linha a guardar no ficheiro
 				write(file,f_name,strlen(f_name));
 			}else if (S_ISDIR(stat_buf.st_mode)){
 				pid = fork();

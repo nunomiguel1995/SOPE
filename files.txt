@@ -1,7 +1,7 @@
-c [Thu Apr 14 16:27:41 2016] 511
-d [Thu Apr 14 16:27:56 2016] 511
-b [Thu Apr 14 16:16:10 2016] 511
-e [Thu Apr 14 11:23:52 2016] 511
-f [Thu Apr 14 11:24:21 2016] 511
-g [Thu Apr 14 15:41:03 2016] 511
-a [Thu Apr 14 18:36:17 2016] 511
+c [Thu Apr 14 16:27:41 2016] 664 [/home/nuno/Documentos/Teste/Pasta3/c]
+d [Thu Apr 14 16:27:56 2016] 664 [/home/nuno/Documentos/Teste/Pasta3/d]
+b [Thu Apr 14 16:16:10 2016] 664 [/home/nuno/Documentos/Teste/b]
+e [Thu Apr 14 11:23:52 2016] 664 [/home/nuno/Documentos/Teste/Pasta2/e]
+f [Thu Apr 14 11:24:21 2016] 664 [/home/nuno/Documentos/Teste/Pasta2/f]
+g [Thu Apr 14 15:41:03 2016] 664 [/home/nuno/Documentos/Teste/Pasta1/g]
+a [Thu Apr 14 18:36:17 2016] 664 [/home/nuno/Documentos/Teste/a]
