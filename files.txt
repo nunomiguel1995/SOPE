@@ -1,7 +1,7 @@
-c [Thu Apr 14 16:27:41 2016] 664 [/home/nuno/Documentos/Teste/Pasta3/c]
-d [Thu Apr 14 16:27:56 2016] 664 [/home/nuno/Documentos/Teste/Pasta3/d]
-b [Thu Apr 14 16:16:10 2016] 664 [/home/nuno/Documentos/Teste/b]
-e [Thu Apr 14 11:23:52 2016] 664 [/home/nuno/Documentos/Teste/Pasta2/e]
-f [Thu Apr 14 11:24:21 2016] 664 [/home/nuno/Documentos/Teste/Pasta2/f]
-g [Thu Apr 14 15:41:03 2016] 664 [/home/nuno/Documentos/Teste/Pasta1/g]
-a [Thu Apr 14 18:36:17 2016] 664 [/home/nuno/Documentos/Teste/a]
+a 664 1460655377 /home/nuno/Documentos/Teste/a
+b 664 1460646970 /home/nuno/Documentos/Teste/b
+c 664 1460647661 /home/nuno/Documentos/Teste/Pasta3/c
+d 664 1460647676 /home/nuno/Documentos/Teste/Pasta3/d
+e 664 1460629432 /home/nuno/Documentos/Teste/Pasta2/e
+f 664 1460629461 /home/nuno/Documentos/Teste/Pasta2/f
+g 664 1460644863 /home/nuno/Documentos/Teste/Pasta1/g

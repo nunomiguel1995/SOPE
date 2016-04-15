@@ -22,7 +22,7 @@ int read_directory(char *dir_name, int file){
 	char f_name[50];
 	int pid;
 	int p_mask;
-	char *mod_time;
+	int mod_time;
 
 	if ((dirp = opendir( dir_name)) == NULL){
 		return 1;
@@ -36,9 +36,9 @@ int read_directory(char *dir_name, int file){
 			}
 			if (S_ISREG(stat_buf.st_mode)){
 				p_mask = (stat_buf.st_mode & 0777); //máscara de permissões
-				mod_time = strtok(ctime(&stat_buf.st_mtim.tv_sec),"\n"); //data da última modificação
+				mod_time = stat_buf.st_mtim.tv_sec; //data da última modificação
 
-				sprintf(f_name,"%s [%s] %3o [%s]\n",direntp->d_name, mod_time ,p_mask, name); //formata a linha a guardar no ficheiro
+				sprintf(f_name,"%s %3o %d %s\n",direntp->d_name, p_mask, mod_time , name); //formata a linha a guardar no ficheiro
 				write(file,f_name,strlen(f_name));
 			}else if (S_ISDIR(stat_buf.st_mode)){
 				pid = fork();
@@ -70,16 +70,20 @@ int main(int argc, char *argv[]){
 
 	if(file == -1){
 		perror("file ERROR");
+		close(file);
 		exit(1);
 	}
 
 	read_dir = read_directory(argv[1],file);
+	execlp("sort", "sort", FILE_NAME,"-o", FILE_NAME, (char*)NULL);
 
 	if(read_dir == 1){
 		perror(argv[1]);
+		close(file);
 		exit(2);
 	}else if(read_dir == 2){
 		perror("lstat ERROR");
+		close(file);
 		exit(3);
 	}
 
