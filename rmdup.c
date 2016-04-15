@@ -14,6 +14,14 @@ typedef struct File{
 	char* path;
 }File;
 
+/*
+ * Ficheiros iguais:
+ * o ambos são ficheiros regulares;
+ * o ambos têm o mesmo nome;
+ * o ambos têm as mesmas permissões de acesso;
+ * o ambos têm o mesmo conteúdo
+ */
+
 int sameContent(File file1, File file2){
 	int cont1, cont2;
 
