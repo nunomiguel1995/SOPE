@@ -66,7 +66,7 @@ int main(int argc, char *argv[]){
 	}
 
 	open(FILE_NAME, O_TRUNC);
-	file = open(FILE_NAME,O_WRONLY | O_APPEND | O_CREAT, S_IRWXG | S_IRWXU | S_IROTH);
+	file = open(FILE_NAME,O_WRONLY | O_APPEND | O_CREAT);
 
 	if(file == -1){
 		perror("file ERROR");
