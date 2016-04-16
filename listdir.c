@@ -75,7 +75,6 @@ int main(int argc, char *argv[]){
 	}
 
 	read_dir = read_directory(argv[1],file);
-	execlp("sort", "sort", FILE_NAME,"-no", FILE_NAME, (char*)NULL);
 
 	if(read_dir == 1){
 		perror(argv[1]);
@@ -88,6 +87,7 @@ int main(int argc, char *argv[]){
 	}
 
 	close(file);
+	execlp("sort", "sort", FILE_NAME,"-no", FILE_NAME, (char*)NULL);
 
 	exit(0);
 }

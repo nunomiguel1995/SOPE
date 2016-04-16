@@ -6,68 +6,54 @@
 #include <stdlib.h>
 #include <string.h>
 #include "utilities.h"
+#include <sys/types.h>
+#include <sys/wait.h>
 
 typedef struct File{
-	char* name;
-	char* date;
-	char* permissions;
-	char* path;
+	char name[BUF_LENGTH];
+	char date[BUF_LENGTH];
+	char permissions[BUF_LENGTH];
+	char path[BUF_LENGTH];
 }File;
 
-int sameContent(File file1, File file2){
-	int cont1, cont2;
+int sameContent(char path1[], char path2[]){
+	int pid, status, res;
 
-	FILE *f1, *f2;
-
-	f1 = fopen(file1.path,"r");
-	f2 = fopen(file2.path,"r");
-
-	if(f1 == NULL){
-		perror("file ERROR");
-		fclose(f1);
-		fclose(f2);
-		return -1;
-	}else if(f2 == NULL){
-		perror("file ERROR");
-		fclose(f1);
-		fclose(f2);
-		return -1;
-	}else{
-		cont1 = getc(f1);
-		cont2 = getc(f2);
-
-		while((cont1 != EOF) && (cont2 != EOF) && (cont1 == cont2)){
-			cont1 = getc(f1);
-			cont2 = getc(f2);
+	pid = fork();
+	if(pid > 0){ /*pai*/
+		waitpid(pid,&status,0);
+		if(status == 0){
+			res = 0; //iguais
+		}else{
+			res = 1;
 		}
-
-		if(cont1 == cont2){ /*conteúdo igual*/
-			fclose(f1);
-			fclose(f2);
-			return 0;
-		}else{ /*conteúdo diferente*/
-			fclose(f1);
-			fclose(f2);
-			return 1;
-		}
+	}else{ /*filho*/
+		execlp("diff","diff", path1, path2, NULL);
 	}
-
-	fclose(f1);
-	fclose(f2);
-	return 0;
+	return res;
 }
 
 int link_Files(File* files, int array_size){
-	int i, j;
+	int i = 0, j = 0;
 
 	for(i = 0; i < array_size; i++){
 		j = i + 1;
 		while(strcmp(files[i].name,files[j].name) == 0){
-			unlink(files[j].name);
-			link(files[i].path,files[j].path);
+			if(strcmp(files[i].permissions,files[j].permissions) == 0){
+				if(sameContent(files[i].path,files[j].path) == 0){
+					if(unlink(files[j].path) == -1){
+						perror("unlink ERROR");
+						return -1;
+					}
+					if(link(files[i].path,files[j].path) == -1){
+						perror("unlink ERROR");
+						return -1;
+					}
+				}
+			}
 			j++;
 		}
-		i += j;
+		i = j - 1;
 	}
 
 	return 0;
@@ -94,21 +80,20 @@ int read_Files(){ /*inicializa vetor com dados de ficheiros*/
 
 	File* files = malloc(array_size * sizeof(*files));
 	for(i = 0; i < array_size; i++){
-		files[i].name = malloc(sizeof(char*));
-		files[i].date = malloc(sizeof(char*));
-		files[i].permissions = malloc(sizeof(char*));
-		files[i].path = malloc(sizeof(char*));
-
 		fscanf(f,"%s %s %s %s", files[i].name,files[i].date, files[i].permissions, files[i].path);
 	}
 	fclose(f);
 
-	link_Files(files,array_size);
+	if(link_Files(files,array_size) == -1){
+		perror("linking files ERROR");
+		return -1;
+	}
 
 	return 0;
 }
 
 int main(int argc, char *argv[], char *envp[]){
+	int pid;
 
 	if(argc != 2){
 		printf("Usage: %s <dir>\n", argv[0]);
@@ -138,11 +123,15 @@ int main(int argc, char *argv[], char *envp[]){
 	strcat(dir,"/");
 	strcat(dir,argv[1]);
 
-	execlp(listdir,"listdir",dir,NULL);
-
-	if(read_Files() == -1){
-		perror("reading file data ERROR");
-		return 1;
+	pid = fork();
+	if(pid > 0){ /*pai*/
+		waitpid(pid,NULL,0);
+		if(read_Files() == -1){
+			perror("reading file data ERROR");
+			return 1;
+		}
+	}else{ /*filho*/
+		execlp(listdir,"listdir",dir,NULL);
 	}
 
 	return 0;
