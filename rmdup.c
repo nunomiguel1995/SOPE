@@ -22,6 +22,8 @@ typedef struct File{
  * o ambos têm o mesmo conteúdo
  */
 
+
+
 int sameContent(File file1, File file2){
 	int cont1, cont2;
 
@@ -61,6 +63,31 @@ int sameContent(File file1, File file2){
 	return 0;
 }
 
+int linkFiles(File* files, char* f_name, int array_size){
+	int i, first_occurance,last_occurance;
+
+	for(i = 0; i < array_size; i++){ /*procura primeira ocorrencia de ficheiro com nome f_name*/
+		if(strcmp(files[i].name, f_name)) first_occurance = i;
+		break;
+	}
+
+	for(i = first_occurance; i < array_size; i++){ /*procura a última occorencia de ficheiro com nome f_name*/
+		if(strcmp(files[i].name, f_name) == 0) last_occurance = i;
+		break;
+	}
+
+	for(i = first_occurance + 1; i < last_occurance; i++){
+		if(strcmp(files[first_occurance].permissions,files[i].permissions) == 0){
+			if(sameContent(files[first_occurance],files[i]) == 0){
+				unlink(files[i].path);
+				link(files[first_occurance].path,files[i].path);
+			}
+		}
+	}
+
+	return 0;
+}
+
 int read_Files(){ /*inicializa vetor com dados de ficheiros*/
 	int c = 0;
 	int nLines = 1;
@@ -93,6 +120,14 @@ int read_Files(){ /*inicializa vetor com dados de ficheiros*/
 	}
 	fclose(f);
 
+	for(i = 1; i < array_size; i++){
+		if(i+1 < array_size){
+			if(strcmp(files[i].name,files[i+1].name) != 0){
+				linkFiles(files,files[i].name,array_size);
+			}
+		}
+	}
+
 	return 0;
 }
 
@@ -115,7 +150,7 @@ int main(int argc, char *argv[], char *envp[]){
 	}
 
 	if(listdir == NULL){
-		printf("Error getting current working path\n");
+		perror("working path ERROR");
 		return 1;
 	}
 
@@ -127,7 +162,10 @@ int main(int argc, char *argv[], char *envp[]){
 	strcat(dir,argv[1]);
 
 	execlp(listdir,"listdir",dir,NULL);
-	read_Files();
+	if(read_Files() == -1){
+		perror("reading file data ERROR");
+		return 1;
+	}
 
 	return 0;
 }
