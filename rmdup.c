@@ -14,16 +14,6 @@ typedef struct File{
 	char* path;
 }File;
 
-/*
- * Ficheiros iguais:
- * o ambos são ficheiros regulares;
- * o ambos têm o mesmo nome;
- * o ambos têm as mesmas permissões de acesso;
- * o ambos têm o mesmo conteúdo
- */
-
-
-
 int sameContent(File file1, File file2){
 	int cont1, cont2;
 
@@ -52,8 +42,12 @@ int sameContent(File file1, File file2){
 		}
 
 		if(cont1 == cont2){ /*conteúdo igual*/
+			fclose(f1);
+			fclose(f2);
 			return 0;
 		}else{ /*conteúdo diferente*/
+			fclose(f1);
+			fclose(f2);
 			return 1;
 		}
 	}
@@ -63,26 +57,17 @@ int sameContent(File file1, File file2){
 	return 0;
 }
 
-int linkFiles(File* files, char* f_name, int array_size){
-	int i, first_occurance,last_occurance;
+int link_Files(File* files, int array_size){
+	int i, j;
 
-	for(i = 0; i < array_size; i++){ /*procura primeira ocorrencia de ficheiro com nome f_name*/
-		if(strcmp(files[i].name, f_name)) first_occurance = i;
-		break;
-	}
-
-	for(i = first_occurance; i < array_size; i++){ /*procura a última occorencia de ficheiro com nome f_name*/
-		if(strcmp(files[i].name, f_name) == 0) last_occurance = i;
-		break;
-	}
-
-	for(i = first_occurance + 1; i < last_occurance; i++){
-		if(strcmp(files[first_occurance].permissions,files[i].permissions) == 0){
-			if(sameContent(files[first_occurance],files[i]) == 0){
-				unlink(files[i].path);
-				link(files[first_occurance].path,files[i].path);
-			}
+	for(i = 0; i < array_size; i++){
+		j = i + 1;
+		while(strcmp(files[i].name,files[j].name) == 0){
+			unlink(files[j].name);
+			link(files[i].path,files[j].path);
+			j++;
 		}
+		i += j;
 	}
 
 	return 0;
@@ -99,17 +84,15 @@ int read_Files(){ /*inicializa vetor com dados de ficheiros*/
 		perror("file ERROR");
 		return -1;
 	}
-
 	while((c = fgetc(f)) != EOF){
 		if(c == '\n') nLines++;
 	}
 	fclose(f);
 
 	f = fopen(FILE_NAME,"r");
-
 	array_size = nLines - 1;
-	File* files = malloc(array_size * sizeof(*files));
 
+	File* files = malloc(array_size * sizeof(*files));
 	for(i = 0; i < array_size; i++){
 		files[i].name = malloc(sizeof(char*));
 		files[i].date = malloc(sizeof(char*));
@@ -120,13 +103,7 @@ int read_Files(){ /*inicializa vetor com dados de ficheiros*/
 	}
 	fclose(f);
 
-	for(i = 1; i < array_size; i++){
-		if(i+1 < array_size){
-			if(strcmp(files[i].name,files[i+1].name) != 0){
-				linkFiles(files,files[i].name,array_size);
-			}
-		}
-	}
+	link_Files(files,array_size);
 
 	return 0;
 }
@@ -162,6 +139,7 @@ int main(int argc, char *argv[], char *envp[]){
 	strcat(dir,argv[1]);
 
 	execlp(listdir,"listdir",dir,NULL);
+
 	if(read_Files() == -1){
 		perror("reading file data ERROR");
 		return 1;
