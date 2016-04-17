@@ -119,7 +119,7 @@ int main(int argc, char *argv[], char *envp[]){
 		perror("working path ERROR");
 		return 1;
 	}
-	strcat(lsdir,"/");
+	strcat(lsdir,"/bin/");
 	strcat(lsdir,"lsdir");
 
 	/*Checks if user passes a absolute or relative path*/
