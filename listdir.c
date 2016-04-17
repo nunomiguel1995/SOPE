@@ -1,6 +1,3 @@
-/* LISTAR FICHEIROS REGULARES E SUB-DIRECTÓRIOS DE UM DIRECTÓRIO */
-/* USO: listdir dirname */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,6 +10,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include "utilities.h"
+#include "listdir.h"
 
 int read_directory(char *dir_name, int file){
 	DIR *dirp;
@@ -65,8 +63,7 @@ int main(int argc, char *argv[]){
 		exit(1);
 	}
 
-	open(FILE_NAME, O_TRUNC);
-	file = open(FILE_NAME,O_WRONLY | O_APPEND | O_CREAT);
+	file = open(FILE_NAME,O_WRONLY | O_APPEND | O_CREAT | O_TRUNC,0664);
 
 	if(file == -1){
 		perror("file ERROR");

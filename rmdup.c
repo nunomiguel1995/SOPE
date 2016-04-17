@@ -1,20 +1,14 @@
-/* REMOVE FICHEIROS DUPLICADOS E SUBSTITUI POR HARDLINK PARA O MAIS ANTIGO */
-/* USO: rmdup dirname */
-
+#include "utilities.h"
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "utilities.h"
-#include <sys/types.h>
-#include <sys/wait.h>
+#include "rmdup.h"
 
-typedef struct File{
-	char name[BUF_LENGTH];
-	char date[BUF_LENGTH];
-	char permissions[BUF_LENGTH];
-	char path[BUF_LENGTH];
-}File;
 
 int sameContent(char path1[], char path2[]){
 	int pid, status, res;
@@ -34,7 +28,16 @@ int sameContent(char path1[], char path2[]){
 }
 
 int link_Files(File* files, int array_size){
-	int i = 0, j = 0;
+	int i = 0, j = 0, saveFile;
+	char linkFile[BUF_LENGTH];
+
+
+	saveFile = open("linkFiles.txt",O_WRONLY|O_CREAT|O_TRUNC, 0664);
+	if(saveFile == -1){
+		perror("file ERROR");
+		close(saveFile);
+		exit(1);
+	}
 
 	for(i = 0; i < array_size; i++){
 		j = i + 1;
@@ -49,6 +52,8 @@ int link_Files(File* files, int array_size){
 						perror("unlink ERROR");
 						return -1;
 					}
+					sprintf(linkFile,"%s %s %s %s\n",files[j].name,files[j].permissions, files[j].date , files[j].path);
+					write(saveFile,linkFile,strlen(linkFile));
 				}
 			}
 			j++;
@@ -102,26 +107,45 @@ int main(int argc, char *argv[], char *envp[]){
 
 	char *buf;
 	char *listdir;
-	char *dir;
+	char *path=NULL;
 	long size;
 
-	size = pathconf(".", _PC_PATH_MAX);
 
+	size = pathconf(".", _PC_PATH_MAX);
 	if((buf = (char *)malloc((size_t) size)) != NULL){
 		listdir= getcwd(buf, (size_t)size);
 	}
-
 	if(listdir == NULL){
 		perror("working path ERROR");
 		return 1;
 	}
-
-	dir= getenv("HOME");
-
 	strcat(listdir,"/");
 	strcat(listdir,"listdir");
-	strcat(dir,"/");
-	strcat(dir,argv[1]);
+
+	/*Checks if user passes a absolute or relative path*/
+	char *c= argv[1];
+
+	if(c[0]=='/'){ //Absolute path
+		path= argv[1];
+	}
+	else if(c[0]!=0){//Relative path
+		long path_size;
+		char *buffer;
+
+		path_size = pathconf(".", _PC_PATH_MAX);
+
+		if((buffer = (char *)malloc((size_t) path_size)) != NULL){
+			path= getcwd(buffer, (size_t)size);
+		}
+
+		if(path == NULL){
+			perror("working path ERROR");
+			return 1;
+		}
+
+		strcat(path,"/");
+		strcat(path,argv[1]);
+	}
 
 	pid = fork();
 	if(pid > 0){ /*pai*/
@@ -131,8 +155,9 @@ int main(int argc, char *argv[], char *envp[]){
 			return 1;
 		}
 	}else{ /*filho*/
-		execlp(listdir,"listdir",dir,NULL);
+		execlp(listdir,"listdir",path,NULL);
 	}
 
 	return 0;
 }
+
