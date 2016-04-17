@@ -10,7 +10,7 @@
 #include "rmdup.h"
 
 
-int sameContent(char path1[], char path2[]){
+int same_content(char path1[], char path2[]){
 	int pid, status, res;
 
 	pid = fork();

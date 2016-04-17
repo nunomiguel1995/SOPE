@@ -16,7 +16,7 @@ int read_directory(char *dir_name, int file){
 	DIR *dirp;
 	struct dirent *direntp;
 	struct stat stat_buf;
-	char name[200];
+	char path[200];
 	char f_name[50];
 	int pid;
 	int p_mask;
@@ -28,22 +28,22 @@ int read_directory(char *dir_name, int file){
 
 	while ((direntp = readdir( dirp)) != NULL){
 		if((strcmp(direntp->d_name,".") != 0) && (strcmp(direntp->d_name,"..") != 0)){ /*nao lista ficheiros ocultos*/
-			sprintf(name,"%s/%s",dir_name,direntp->d_name);
-			if (lstat(name, &stat_buf)==-1)	{
+			sprintf(path,"%s/%s",dir_name,direntp->d_name);
+			if (lstat(path, &stat_buf)==-1)	{
 				return 2;
 			}
 			if (S_ISREG(stat_buf.st_mode)){
 				p_mask = (stat_buf.st_mode & 0777); //máscara de permissões
 				mod_time = stat_buf.st_mtim.tv_sec; //data da última modificação
 
-				sprintf(f_name,"%s %3o %d %s\n",direntp->d_name, p_mask, mod_time , name); //formata a linha a guardar no ficheiro
+				sprintf(f_name,"%s %3o %d %s\n",direntp->d_name, p_mask, mod_time , path); //formata a linha a guardar no ficheiro
 				write(file,f_name,strlen(f_name));
 			}else if (S_ISDIR(stat_buf.st_mode)){
 				pid = fork();
 				if(pid > 0){ /*pai*/
 					waitpid(pid,NULL,0);
 				}else{ /*filho*/
-					read_directory(name,file);
+					read_directory(path,file);
 					return 0;
 				}
 			}
