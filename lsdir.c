@@ -9,8 +9,9 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <time.h>
+
+#include "lsdir.h"
 #include "utilities.h"
-#include "listdir.h"
 
 int read_directory(char *dir_name, int file){
 	DIR *dirp;
@@ -63,7 +64,7 @@ int main(int argc, char *argv[]){
 		exit(1);
 	}
 
-	file = open(FILE_NAME,O_WRONLY | O_APPEND | O_CREAT | O_TRUNC,0664);
+	file = open(FILE_NAME,O_WRONLY | O_APPEND | O_CREAT | O_TRUNC, 0664);
 
 	if(file == -1){
 		perror("file ERROR");

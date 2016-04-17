@@ -43,7 +43,7 @@ int link_Files(File* files, int array_size){
 		j = i + 1;
 		while(strcmp(files[i].name,files[j].name) == 0){
 			if(strcmp(files[i].permissions,files[j].permissions) == 0){
-				if(sameContent(files[i].path,files[j].path) == 0){
+				if(same_content(files[i].path,files[j].path) == 0){
 					if(unlink(files[j].path) == -1){
 						perror("unlink ERROR");
 						return -1;
@@ -106,21 +106,21 @@ int main(int argc, char *argv[], char *envp[]){
 	}
 
 	char *buf;
-	char *listdir;
+	char *lsdir;
 	char *path=NULL;
 	long size;
 
 
 	size = pathconf(".", _PC_PATH_MAX);
 	if((buf = (char *)malloc((size_t) size)) != NULL){
-		listdir= getcwd(buf, (size_t)size);
+		lsdir= getcwd(buf, (size_t)size);
 	}
-	if(listdir == NULL){
+	if(lsdir == NULL){
 		perror("working path ERROR");
 		return 1;
 	}
-	strcat(listdir,"/");
-	strcat(listdir,"listdir");
+	strcat(lsdir,"/");
+	strcat(lsdir,"lsdir");
 
 	/*Checks if user passes a absolute or relative path*/
 	char *c= argv[1];
@@ -128,7 +128,7 @@ int main(int argc, char *argv[], char *envp[]){
 	if(c[0]=='/'){ //Absolute path
 		path= argv[1];
 	}
-	else if(c[0]!=0){//Relative path
+	else if(c[0]!= '/'){//Relative path
 		long path_size;
 		char *buffer;
 
@@ -155,7 +155,7 @@ int main(int argc, char *argv[], char *envp[]){
 			return 1;
 		}
 	}else{ /*filho*/
-		execlp(listdir,"listdir",path,NULL);
+		execlp(lsdir,"lsdir",path,NULL);
 	}
 
 	return 0;

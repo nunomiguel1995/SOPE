@@ -1,5 +1,5 @@
-#ifndef LISTDIR_H
-#define LISTDIR_H
+#ifndef LSDIR_H
+#define LSDIR_H
 
 /*Lists all regular files of a given directory*/
 
